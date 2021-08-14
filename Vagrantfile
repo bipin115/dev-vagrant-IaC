@@ -1,29 +1,39 @@
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "centos/7"
+  servers = [
+	  {
+		  :hostname => "VM-Server01",
+		  :box => "bento/ubuntu-18.04",
+		  :ip=> "172.16.1.50",
+		  :ssh_port => 2200
+	  },
+	  {
+		  :hostname => "VM-Server02",
+		  :box => "bento/ubuntu-18.04",
+		  :ip=> "172.16.1.51",
+		  :ssh_port => 2201
+	  },
+	  {
+		  :hostname => "VM-Server03",
+		  :box => "bento/ubuntu-18.04",
+		  :ip=> "172.16.1.52",
+		  :ssh_port => 2202
+	  }
+	]
   
-  # config.vm.box_check_update = false
-  #config.vm.network "forwarded_port", guest: 80, host: 8080
-  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
-
-  # Create a private network, which allows host-only access to the machine
-  #using a specific IP.
-  #config.vm.network "private_network", ip: "192.168.33.10"
-  #config.vm.synced_folder ".", "/var/www/html"
-
-  #config.vm.provider "virtualbox" do |vb|
-    # Display the VirtualBox GUI when booting the machine
-    #vb.gui = true
-  
-    # Customize the amount of memory on the VM:
-    #vb.memory = "512"
-    #vb.cpus = 2
-  #end
-
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   apt-get update
-  #   apt-get install -y apache2
-  # SHELL
-  
-#config.vm.provision "shell", path: "ansible.sh"
+   servers.each do |machine|
+    config.vm.define machine[:hostname] do |node|
+		 node.vm.box = machine[:box]
+		 node.vm.hostname = machine[:hostname]
+		 node.vm.network :private_network, ip: machine[:ip]
+		 node.vm.network "forwarded_port", guest: 22, host: machine[:ssh_port], id: "ssh"
+		 #node.vm.synced_folder "C:/Users/bipin singh/Desktop/Vagrant-IaC", source: ".", destiation: "/home/vagrant/"
+		 node.vm.synced_folder ".", "/vagrant"
+		 
+		 node.vm.provider :virtualbox do |vb|
+			vb.customize ["modifyvm", :id, "--memory", 512]
+			vb.customize ["modifyvm", :id, "--cpus", 2] 
+		 end
+	end
+  end
 end
