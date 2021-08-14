@@ -1,4 +1,5 @@
 Common commands:
+
      autocomplete    manages autocomplete installation on host
      box             manages boxes: installation, removal, etc.
      cloud           manages everything related to Vagrant Cloud
